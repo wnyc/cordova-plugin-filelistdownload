@@ -1,0 +1,16 @@
+{
+    "version": "0.1.0",
+    "name": "org.nypr.cordova.filelistdownloadplugin,
+    "cordova_name": "FileListDownloadPlugin",
+    "description": "File List Download Plugin",
+    "license": "Apache 2.0",
+    "repo": "git@git.wnyc.net:mobile/cordova/cordova-plugin-filelistdownload.git",
+    "keywords": [
+        "file",
+        "download"
+    ],
+    "platforms": [
+        "android"
+    ],
+    "engines": []
+}
