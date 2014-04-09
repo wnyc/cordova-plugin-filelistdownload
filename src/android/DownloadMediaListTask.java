@@ -51,7 +51,7 @@ public class DownloadMediaListTask implements Runnable {
 		try { 
 			String directory=DownloadMediaFileTask.getDirectory(context);
 			String url;
-			String fileName;
+			String filename;
 			HashSet <String> doNotDownloadTheseFiles;
 			
 			// create the directory if it isn't there.
@@ -62,13 +62,13 @@ public class DownloadMediaListTask implements Runnable {
 				
 			for(int i=0;i<downloadArray.length() &&!mCancel;i++){
 				url=downloadArray.getJSONObject(i).getString("audio");
-				fileName=new File(url).getName().toLowerCase();
-				
+				filename=new File(url).getName().toLowerCase();
+				filename=Utilities.stripArgumentsFromFilename(filename);
 				// check if file already here
-				if(!doNotDownloadTheseFiles.contains(fileName)){
+				if(!doNotDownloadTheseFiles.contains(filename)){
 					// download the audio 
 					//Log.d(LOG_TAG, "Downloading Audio File #" + (i+1) + ". Url=" + url);
-					mCurrentDownloadMediaFileTask.startDownload(context, listener, url,fileName);
+					mCurrentDownloadMediaFileTask.startDownload(context, listener, url,filename);
 					/*
 					// download the image. not sure if this is necessary
 					url=downloadArray.getJSONObject(i).getString("image");
@@ -81,7 +81,7 @@ public class DownloadMediaListTask implements Runnable {
 				}else{
 					Log.d(LOG_TAG, "Skipping download, file already on device. File #" + (i+1) + ". Url=" + url);
 					// fire event notifying of 'completed' download
-					listener.onDownloadListProgressUpdate(fileName, 100);
+					listener.onDownloadListProgressUpdate(filename, 100);
 				}
 			}
 			
@@ -109,6 +109,7 @@ public class DownloadMediaListTask implements Runnable {
 		for(int i=0;i<downloadArray.length();i++){
 			url=downloadArray.getJSONObject(i).getString("audio");
 			filename=new File(url).getName();
+			filename=Utilities.stripArgumentsFromFilename(filename);
 			file = new File(directory + (filename));
 			if(file.exists()){
 				mDownloadListener.onDownloadListProgressUpdate(filename, 100);
@@ -136,6 +137,7 @@ public class DownloadMediaListTask implements Runnable {
 				}
 			}
 			fileToKeep = new File(url).getName().toLowerCase();
+			fileToKeep = Utilities.stripArgumentsFromFilename(fileToKeep);
 			if(!force){
 				filesToKeep.add(fileToKeep);
 			}else{

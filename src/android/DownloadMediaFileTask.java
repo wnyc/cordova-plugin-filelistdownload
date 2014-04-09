@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-
 import android.content.Context;
 //import android.media.MediaScannerConnection;
 //import android.net.Uri;
@@ -82,6 +81,7 @@ public class DownloadMediaFileTask implements Runnable {
 			}
 		
 			progressFilename=new File(sourceUrl).getName();
+			progressFilename=Utilities.stripArgumentsFromFilename(progressFilename);
 			
 			Log.d(LOG_TAG, "Performing Download");
 			Log.d(LOG_TAG, "Source URL\t:" + sourceUrl);
