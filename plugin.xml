@@ -14,11 +14,15 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="FileListDownloadPlugin" >
-                <param name="android-package" value="org.nypr.cordova.filelistdownloadplugin"/>
+                <param name="android-package" value="org.nypr.cordova.filelistdownloadplugin.FileListDownloadPlugin"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/*" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/DownloadHandler.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/DownloadMediaFileTask.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/DownloadMediaListTask.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/FileListDownloadPlugin.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/OnDownloadUpdateListener.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
     </platform>
 
     <!-- ios -->
