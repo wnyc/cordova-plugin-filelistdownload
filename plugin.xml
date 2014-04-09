@@ -23,6 +23,7 @@
         <source-file src="src/android/DownloadMediaListTask.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
         <source-file src="src/android/FileListDownloadPlugin.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
         <source-file src="src/android/OnDownloadUpdateListener.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
+        <source-file src="src/android/Utilities.java" target-dir="src/org/nypr/cordova/filelistdownloadplugin/" />
     </platform>
 
     <!-- ios -->
