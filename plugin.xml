@@ -27,16 +27,72 @@
     </platform>
 
     <!-- ios -->
-    <!--
     <platform name="ios">
-        <config-file target="config.xml" parent="/*">
-            <feature name="Device">
-                <param name="ios-package" value="CDVDevice"/>
-            </feature>
-        </config-file>
+        <feature name="FileListDownloadPlugin">
+            <param name="ios-package" value="FileListDownloadPlugin" />
+        </feature>
 
-        <header-file src="src/ios/CDVDevice.h" />
-        <source-file src="src/ios/CDVDevice.m" />
+        <header-file src="src/ios/FileListDownloadPlugin.h" />
+        <header-file src="src/ios/DownloadHandler.h" />
+        <header-file src="src/ios/DownloadRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIAuthenticationDialog.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASICacheDelegate.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIDataCompressor.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIDataDecompressor.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIDownloadCache.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIFormDataRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIHTTPRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIHTTPRequestConfig.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIHTTPRequestDelegate.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIInputStream.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASINetworkQueue.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIProgressDelegate.h" />
+        <header-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesCDNRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainer.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerXMLParserDelegate.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesObject.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesObjectRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/Reachability/Reachability.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASINSXMLParserCompat.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3Bucket.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3BucketObject.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3BucketRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3ObjectRequest.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3Request.h" />
+        <header-file src="src/ios/ASIHTTPRequest/S3/ASIS3ServiceRequest.h" />
+
+        <source-file src="src/ios/FileListDownloadPlugin.m" />
+        <source-file src="src/ios/DownloadHandler.m" />
+        <source-file src="src/ios/DownloadRequest.m" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIAuthenticationDialog.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIDataCompressor.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIDataDecompressor.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIDownloadCache.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIFormDataRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIHTTPRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIInputStream.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASINetworkQueue.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesCDNRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainer.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerXMLParserDelegate.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesObject.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesObjectRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/Reachability/Reachability.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3Bucket.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3BucketObject.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3BucketRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3ObjectRequest.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3Request.m" compiler-flags="-fno-objc-arc" />
+        <source-file src="src/ios/ASIHTTPRequest/S3/ASIS3ServiceRequest.m" compiler-flags="-fno-objc-arc" />
+
+        <framework src="libxml2.dylib" />
+        <framework src="libz.dylib" />
+        <framework src="CFNetwork.framework" />
     </platform>
-    -->
 </plugin>
