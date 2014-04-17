@@ -47,7 +47,8 @@
         <header-file src="src/ios/ASIHTTPRequest/ASIInputStream.h" />
         <header-file src="src/ios/ASIHTTPRequest/ASINetworkQueue.h" />
         <header-file src="src/ios/ASIHTTPRequest/ASIProgressDelegate.h" />
-        <header-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.h" />
+        <!-- see explanation below for excluding this file -->
+        <!-- <header-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.h" /> -->
         <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesCDNRequest.h" />
         <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainer.h" />
         <header-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerRequest.h" />
@@ -75,7 +76,9 @@
         <source-file src="src/ios/ASIHTTPRequest/ASIHTTPRequest.m" compiler-flags="-fno-objc-arc" />
         <source-file src="src/ios/ASIHTTPRequest/ASIInputStream.m" compiler-flags="-fno-objc-arc" />
         <source-file src="src/ios/ASIHTTPRequest/ASINetworkQueue.m" compiler-flags="-fno-objc-arc" />
-        <source-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.m" compiler-flags="-fno-objc-arc" />
+        <!-- including this file was causing an error - unable to find libxml header files which required manually adding ${SDK_DIR}/usr/include/libxml2 to the header search path -->
+        <!-- since this class is not used I am excluding it until I can figure out how to fix the error for the automated build. ideas? -->
+        <!-- <source-file src="src/ios/ASIHTTPRequest/ASIWebPageRequest/ASIWebPageRequest.m" compiler-flags="-fno-objc-arc" /> -->
         <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesCDNRequest.m" compiler-flags="-fno-objc-arc" />
         <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainer.m" compiler-flags="-fno-objc-arc" />
         <source-file src="src/ios/ASIHTTPRequest/CloudFiles/ASICloudFilesContainerRequest.m" compiler-flags="-fno-objc-arc" />
@@ -94,5 +97,7 @@
         <framework src="libxml2.dylib" />
         <framework src="libz.dylib" />
         <framework src="CFNetwork.framework" />
+        <framework src="SystemConfiguration.framework" />
+        <framework src="MobileCoreServices.framework" />
     </platform>
 </plugin>
