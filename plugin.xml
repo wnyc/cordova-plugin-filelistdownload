@@ -28,9 +28,11 @@
 
     <!-- ios -->
     <platform name="ios">
-        <feature name="FileListDownloadPlugin">
-            <param name="ios-package" value="FileListDownloadPlugin" />
-        </feature>
+        <config-file target="config.xml" parent="/*">
+            <feature name="FileListDownloadPlugin">
+                <param name="ios-package" value="FileListDownloadPlugin" />
+            </feature>
+        </config-file>
 
         <header-file src="src/ios/FileListDownloadPlugin.h" />
         <header-file src="src/ios/DownloadHandler.h" />
