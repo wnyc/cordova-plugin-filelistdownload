@@ -14,6 +14,8 @@
 @interface FileListDownloadPlugin : CDVPlugin
 {
     DownloadHandler     * mDownloadHandler;
+    
+    NSString * _callbackId;
 }
 
 - (void)downloadfilelist:(CDVInvokedUrlCommand*)command;

@@ -18,19 +18,9 @@
         
         self->mDownloadHandler=[DownloadHandler alloc];
     
-        [[NSNotificationCenter defaultCenter]   addObserver:self
-                                               selector:@selector(_onDownloadProgress:)
-                                                   name:@"DownloadProgressNotification"
-                                                 object:nil];
-        [[NSNotificationCenter defaultCenter]   addObserver:self
-                                               selector:@selector(_onDownloadComplete:)
-                                                   name:@"DownloadCompleteNotification"
-                                                 object:nil];
-    
-        [[NSNotificationCenter defaultCenter]   addObserver:self
-                                               selector:@selector(_onDownloadError:)
-                                                   name:@"DownloadErrorNotification"
-                                                 object:nil];
+        [[NSNotificationCenter defaultCenter]   addObserver:self selector:@selector(_onDownloadProgress:) name:@"DownloadProgressNotification" object:nil];
+        [[NSNotificationCenter defaultCenter]   addObserver:self selector:@selector(_onDownloadComplete:) name:@"DownloadCompleteNotification" object:nil];
+        [[NSNotificationCenter defaultCenter]   addObserver:self selector:@selector(_onDownloadError:) name:@"DownloadErrorNotification" object:nil];
     
     }
 }
@@ -39,51 +29,53 @@
 
 - (void)dispose {
     NSLog(@"FileListDownload Plugin disposing");
-    if(self->mDownloadHandler){
-        //[self->mDownloadHandler release];
-        self->mDownloadHandler=nil;
-    }
+    
+    self->mDownloadHandler=nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DownloadProgressNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DownloadCompleteNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DownloadErrorNotification" object:nil];
+    
     [super dispose];
+}
+
+
+#pragma mark Plugin handler
+
+-(void)_sendPluginResult:(CDVPluginResult*)result callbackId:(NSString*)callbackId{
+    if (_callbackId==nil){
+        _callbackId=callbackId;
+    }
+    [result setKeepCallbackAsBool:YES]; // keep for later callbacks
+    [self.commandDelegate sendPluginResult:result callbackId:_callbackId];
 }
 
 #pragma mark Download commands
 
 - (void)scanfilelist:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
-    
     NSLog (@"FileListDownload Plugin scanning file list.");
     
     if(command.arguments){
         [self _createDownloadHandler];
         [self->mDownloadHandler scanPlaylist:command.arguments];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+        [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
     }else{
-        // return an error - no parameter
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"no arguments found"] callbackId:command.callbackId];
     }
 }
 
 - (void)downloadfilelist:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
-    
     NSLog (@"FileListDownload Plugin downloading file list.");
     
     if(command.arguments){
         [self _createDownloadHandler];
         [self->mDownloadHandler downloadPlaylist:command.arguments];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+
+        [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
     }else{
-        // return an error - no parameter
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"no arguments found"] callbackId:command.callbackId];
     }
 }
 
@@ -101,24 +93,18 @@
         
         progress *= 100;
         
-        NSString * jsToRun=[NSString stringWithFormat:@"NYPRNativeFeatures.prototype.DownloadProgress(%i, '%@')", (int) progress, filename];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // this runs the call to UIKit on the main thread. not doing so causes a crash.
-            //NSLog(@"JS to run: %@", jsToRun);
-            [self writeJavascript:jsToRun];
-        });
+        NSDictionary * o = @{ @"type" : @"progress", @"progress" : [NSNumber numberWithInt:(int)progress], @"filename" : filename};
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
+        [self _sendPluginResult:pluginResult callbackId:_callbackId];
     }
 }
 
 - (void) _onDownloadComplete:(NSNotification *) notification
 {
     if ([[notification name] isEqualToString:@"DownloadCompleteNotification"]){
-        NSString * jsToRun=[NSString stringWithFormat:@"NYPRNativeFeatures.prototype.DownloadComplete()"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // this runs the call to UIKit on the main thread. not doing so causes a crash.
-            //NSLog(@"JS to run: %@", jsToRun);
-            [self writeJavascript:jsToRun];
-        });
+        NSDictionary * o = @{ @"type" : @"complete" };
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
+        [self _sendPluginResult:pluginResult callbackId:_callbackId];
     }
 }
 
@@ -131,11 +117,11 @@
         NSString * filename = [dict objectForKey:(@"filename")];
         int code = [[dict  objectForKey:(@"code")] intValue];
         NSString * description= [dict objectForKey:(@"description")];
-        
-        NSString * jsToRun=[NSString stringWithFormat:@"NYPRNativeFeatures.prototype.DownloadError('%@', %i,'%@')", filename, code, description];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self writeJavascript:jsToRun];
-        });
+
+        NSDictionary * o = @{ @"type" : @"error", @"code" : [NSNumber numberWithInt:code], @"description" : description, @"filename" : filename};
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
+        [self _sendPluginResult:pluginResult callbackId:_callbackId];
+
     }
 }
 
