@@ -93,7 +93,10 @@
         
         progress *= 100;
         
-        NSDictionary * o = @{ @"type" : @"progress", @"progress" : [NSNumber numberWithInt:(int)progress], @"filename" : filename};
+        NSDictionary * o = @{ @"type" : @"progress",
+                              @"percent" : [NSNumber numberWithInt:(int)progress],
+                              @"filename" : filename};
+        
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
         [self _sendPluginResult:pluginResult callbackId:_callbackId];
     }
