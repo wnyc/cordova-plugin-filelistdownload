@@ -45,8 +45,11 @@
     if (_callbackId==nil){
         _callbackId=callbackId;
     }
-    [result setKeepCallbackAsBool:YES]; // keep for later callbacks
-    [self.commandDelegate sendPluginResult:result callbackId:_callbackId];
+
+    if (_callbackId!=nil) {
+      [result setKeepCallbackAsBool:YES]; // keep for later callbacks
+      [self.commandDelegate sendPluginResult:result callbackId:_callbackId];
+    }
 }
 
 #pragma mark Download commands
@@ -57,6 +60,11 @@
     
     if(command.arguments){
         [self _createDownloadHandler];
+    
+        if (_callbackId==nil) {
+          _callbackId=callbackId:command.callbackId;
+        }
+
         [self->mDownloadHandler scanPlaylist:command.arguments];
 
         [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
@@ -71,6 +79,11 @@
     
     if(command.arguments){
         [self _createDownloadHandler];
+
+        if (_callbackId==nil) {
+          _callbackId=callbackId:command.callbackId;
+        }
+
         [self->mDownloadHandler downloadPlaylist:command.arguments];
 
         [self _sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_OK] callbackId:command.callbackId];
