@@ -62,7 +62,7 @@
         [self _createDownloadHandler];
     
         if (_callbackId==nil) {
-          _callbackId=callbackId:command.callbackId;
+          _callbackId=command.callbackId;
         }
 
         [self->mDownloadHandler scanPlaylist:command.arguments];
@@ -81,7 +81,7 @@
         [self _createDownloadHandler];
 
         if (_callbackId==nil) {
-          _callbackId=callbackId:command.callbackId;
+          _callbackId=command.callbackId;
         }
 
         [self->mDownloadHandler downloadPlaylist:command.arguments];
