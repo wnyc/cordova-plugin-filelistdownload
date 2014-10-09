@@ -255,7 +255,7 @@
         [[NSFileManager defaultManager] removeItemAtPath:dlDirectoryAndFilename error:&error];
     } else {
         // don't back up to Cloud
-        [self addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:directoryAndFilename]];
+        [self _addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:directoryAndFilename]];
     }
     
     // release the queue
@@ -488,15 +488,14 @@
 }
 
 // prevent backup to the Cloud
-- (BOOL)addSkipBackupAttributeToItemAtURL:(NSURL *)URL
-{
-    assert([[NSFileManager defaultManager] fileExistsAtPath: [URL path]]);
-    
-    NSError *error = nil;
-    BOOL success = [URL setResourceValue: [NSNumber numberWithBool: YES]
-                                  forKey: NSURLIsExcludedFromBackupKey error: &error];
-    if(!success){
-        NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+- (BOOL)_addSkipBackupAttributeToItemAtURL:(NSURL *)URL{
+    BOOL success=false;
+    if ([[NSFileManager defaultManager] fileExistsAtPath: [URL path]])  {
+        NSError *error = nil;
+        success = [URL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
+        if(!success){
+            NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+        }
     }
     return success;
 }
