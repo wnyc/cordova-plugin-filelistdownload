@@ -4,7 +4,7 @@
 
 This plugin supports PhoneGap/Cordova apps running on both iOS and Android.  
 
-The iOS portion currently utlizes an outdated verson of ASIHTTPRequest. Plans are in the works to switch to AFNetworking.  
+The iOS portion currently utilizes an outdated verson of ASIHTTPRequest. Plans are in the works to switch to AFNetworking.  
 
 ### Version Requirements
 
