@@ -10,6 +10,10 @@
     <keywords>file,download</keywords>
     <repo>git@git.wnyc.net:mobile/cordova/cordova-plugin-filelistdownload.git</repo>
 
+    <js-module src="www/filelistdownload.js" name="FileListDownload">
+      <clobbers target="filelistdownload"/>
+    </js-module>
+
     <!-- android -->
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
