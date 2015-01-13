@@ -7,6 +7,9 @@
 //
 
 #import "FileListDownloadPlugin.h"
+#import "DDLog.h"
+
+extern int ddLogLevel;
 
 @implementation FileListDownloadPlugin
 
@@ -14,7 +17,7 @@
 
 - (void) _createDownloadHandler {
     if(self->mDownloadHandler==nil){
-        NSLog (@"FileListDownload Plugin creating handler.");
+        DDLogInfo(@"FileListDownload Plugin creating handler.");
         
         self->mDownloadHandler=[DownloadHandler alloc];
     
@@ -28,7 +31,7 @@
 #pragma mark Cleanup
 
 - (void)dispose {
-    NSLog(@"FileListDownload Plugin disposing");
+    DDLogInfo(@"FileListDownload Plugin disposing");
     
     self->mDownloadHandler=nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"DownloadProgressNotification" object:nil];
@@ -54,9 +57,8 @@
 
 #pragma mark Download commands
 
-- (void)scanfilelist:(CDVInvokedUrlCommand*)command
-{
-    NSLog (@"FileListDownload Plugin scanning file list.");
+- (void)scanfilelist:(CDVInvokedUrlCommand*)command {
+    DDLogInfo(@"FileListDownload Plugin scanning file list.");
     
     if(command.arguments){
         [self _createDownloadHandler];
@@ -75,7 +77,7 @@
 
 - (void)downloadfilelist:(CDVInvokedUrlCommand*)command
 {
-    NSLog (@"FileListDownload Plugin downloading file list.");
+    DDLogInfo(@"FileListDownload Plugin downloading file list.");
     
     if(command.arguments){
         [self _createDownloadHandler];
@@ -95,8 +97,7 @@
 
 #pragma mark Downlaod event handlers
 
-- (void) _onDownloadProgress:(NSNotification *) notification
-{
+- (void) _onDownloadProgress:(NSNotification *) notification {
     if ([[notification name] isEqualToString:@"DownloadProgressNotification"]){
         
         NSDictionary *dict = [notification userInfo];
@@ -115,8 +116,7 @@
     }
 }
 
-- (void) _onDownloadComplete:(NSNotification *) notification
-{
+- (void) _onDownloadComplete:(NSNotification *) notification {
     if ([[notification name] isEqualToString:@"DownloadCompleteNotification"]){
         NSDictionary * o = @{ @"type" : @"complete" };
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
@@ -124,8 +124,7 @@
     }
 }
 
-- (void) _onDownloadError:(NSNotification *) notification
-{
+- (void) _onDownloadError:(NSNotification *) notification {
     if ([[notification name] isEqualToString:@"DownloadErrorNotification"]){
         
         NSDictionary *dict = [notification userInfo];
@@ -133,6 +132,14 @@
         NSString * filename = [dict objectForKey:(@"filename")];
         int code = [[dict  objectForKey:(@"code")] intValue];
         NSString * description= [dict objectForKey:(@"description")];
+
+        if (!filename) {
+          filename=@"";
+        }
+
+        if (!description) {
+          description=@"";
+        }
 
         NSDictionary * o = @{ @"type" : @"error", @"code" : [NSNumber numberWithInt:code], @"description" : description, @"filename" : filename};
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:o];
