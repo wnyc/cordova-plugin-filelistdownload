@@ -7,36 +7,37 @@
 //
 
 #import "ASINetworkQueue.h"
-
 #import "DownloadRequest.h"
+#import "DDLog.h"
+
+extern int ddLogLevel;
 
 @implementation DownloadRequest
 
 
-- (void)cancel
-{
-    NSLog(@"DownloadRequest--cancel");
+- (void)cancel {
+    DDLogInfo(@"FileListDownload Plugi DownloadRequest--cancel");
     
     UIApplicationState appState=[UIApplication sharedApplication].applicationState;
-    NSLog(@"Application State: %d", appState);
+    DDLogInfo(@"FileListDownload Plugin Application State: %ld", appState);
     if(appState==UIApplicationStateBackground){
-        NSLog(@"App running in background");
+        DDLogInfo(@"FileListDownload Plugin App running in background");
     } else if(appState==UIApplicationStateInactive){
-        NSLog(@"App inactive");
+        DDLogInfo(@"FileListDownload Plugin App inactive");
     } else if(appState==UIApplicationStateActive){
-        NSLog(@"App running in foreground");
+        DDLogInfo(@"FileListDownload Plugin App running in foreground");
     } else {
-        NSLog(@"App state unknown");
+        DDLogInfo(@"FileListDownload Plugin App state unknown");
     }
     
     NSTimeInterval timeLeft = [UIApplication sharedApplication].backgroundTimeRemaining;
     NSInteger tl = timeLeft;
-    NSLog(@"Background time remaining: %d seconds", tl );
+    DDLogInfo(@"FileListDownload Plugin Background time remaining: %ld seconds", (long)tl );
     
     // if time left is less than ten seconds, and running the background assume this
     // request is being canceled due to timeout, and re-queue
     if(appState==UIApplicationStateBackground /*&& tl < 10*/){
-        NSLog(@"requeueing due to background timeout");
+        DDLogInfo(@"FileListDownload Plugin requeueing due to background timeout");
         
         ASINetworkQueue * q = [self queue];
         

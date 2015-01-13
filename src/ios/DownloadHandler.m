@@ -10,6 +10,9 @@
 
 #import "ASINetworkQueue.h"
 #import "DownloadRequest.h"
+#import "DDLog.h"
+
+extern int ddLogLevel;
 
 @implementation DownloadHandler
 
@@ -17,13 +20,9 @@
 #define MINIMUM_SPACE (MINIMUM_MB * 1024 * 1024)
 
 
-- (void)dealloc
-{
+- (void)dealloc {
     mCurrentJSON=nil;
     mNetworkQueue=nil;
-    //[mCurrentJSON release];
-    //	[mNetworkQueue release];
-    //	[super dealloc];
 }
 
 -(void) scanPlaylist:(NSArray *)filelist{
@@ -41,26 +40,21 @@
     
     // check if download is in progress
     if(mNetworkQueue != nil && [[self mNetworkQueue] requestsCount] > 0){
-        NSLog(@"Download is in progress");
+        DDLogInfo(@"FileListDownload Plugin Download is in progress");
         
-        // compare currently downloading JSON
         if([mCurrentJSON isEqualToArray:filelist]){
-            // same JSON - continue download
-            NSLog(@"JSON is the same -- continue");
-            // scan for completed files -- the purpose of this is to notify the interface of file progress for completed files
+            DDLogInfo(@"FileListDownload Plugin JSON is the same -- continue");
+            // notify the interface of file progress for completed files
             [self scanForDownloadedFiles:filelist];
-            // cancel restart
             restart=false;
         }else{
-            // stop the current download
-            NSLog(@"JSON is different -- cancel current download and restart");
+            DDLogInfo(@"FileListDownload Plugin JSON is different -- cancel current download and restart");
             [[self mNetworkQueue] cancelAllOperations];
         }
     }
     
     if (restart){
         // create a copy of the incoming file list
-        // [mCurrentJSON release];
         mCurrentJSON=nil;
         mCurrentJSON = [[NSArray alloc] initWithArray:filelist copyItems:TRUE];
         
@@ -113,7 +107,7 @@
                         [self notifyError:filename code:NYPRNativeInsufficientDiskSpaceType description:msg];
                     }
                 }else{
-                    NSLog(@"Skipping download, file already on device. File #%d. Url=%@", (i+1), url);
+                    DDLogInfo(@"FileListDownload Plugin Skipping download, file already on device. File #%d. Url=%@", (i+1), url);
                     // fire event notifying of 'completed' download
                     [self notifyProgressUpdate:[url lastPathComponent] progress:1];
                 }
@@ -129,8 +123,7 @@
                 [self notifyError:filename code:NYPRNativeInvalidURL description:msg];
             }
         }
-    
-        //[filesAlreadyHere release];
+
         filesAlreadyHere=nil;
 
         if ([[self mNetworkQueue] requestsCount] > 0) {
@@ -177,7 +170,7 @@
     NSString *filename = [[[request originalURL] absoluteString] lastPathComponent];
     float progress = bytesRead / bytesTotal;
     
-    //NSLog(@"Data Recieved--%f. URL-%@", progress, filename);
+    //DDLogInfo(@"FileListDownload Plugin Data Recieved--%f. URL-%@", progress, filename);
     
     [self notifyProgressUpdate:filename progress:progress];
     
@@ -186,14 +179,11 @@
     static NSInteger lastDisplayed;
     if (tl%10==0 ) {
         lastDisplayed = tl;
-        NSLog(@"Background time remaining: %.0ld seconds", (long)lastDisplayed );
+        DDLogInfo(@"FileListDownload Plugin Background time remaining: %.0ld seconds", (long)lastDisplayed );
     }
 }
 
-- (void)request:(ASIHTTPRequest *)request incrementDownloadSizeBy:(long long)newLength
-{
-     //NSLog(@"Increment download size by--%lld. URL-%@", newLength, [request originalURL]);
-}
+
 
 - (void)requestStarted:(ASIHTTPRequest *)request
 {
@@ -202,7 +192,7 @@
         filename = [[[request url] lastPathComponent] lowercaseString];
     }
     
-	//NSLog(@"Request started--%@; Length=%lld", [request url], [request contentLength]);
+	//DDLogInfo(@"FileListDownload Plugin Request started--%@; Length=%lld", [request url], [request contentLength]);
     // check to ensure minimum memory threshold is met
     if([self minimumSpaceIsAvailable:MINIMUM_SPACE]==FALSE){
         
@@ -212,13 +202,13 @@
         
         [request cancel]; // handle the cancel
     }else{
-        NSLog(@"Request started: %@ (Priority %d)", filename, [request queuePriority]);
+        DDLogInfo(@"FileListDownload Plugin Request started: %@ (Priority %ld)", filename, [request queuePriority]);
     }
 }
 
 - (void)requestDidReceiveResponseHeaders:(ASIHTTPRequest *)request responseHeaders:(NSDictionary *)responseHeaders
 {
-	//NSLog(@"Request received response headers--%@; Length=%lld", [request url], [request contentLength]);
+	//DDLogInfo(@"FileListDownload Plugin Request received response headers--%@; Length=%lld", [request url], [request contentLength]);
     
     // check to ensure minimum memory threshold is met
     if([self minimumSpaceIsAvailable:[request contentLength]]==FALSE){
@@ -242,7 +232,7 @@
         filename = [[[request url] lastPathComponent] lowercaseString];
     }
     
-    NSLog(@"Request finished -- %@", filename );
+    DDLogInfo(@"FileListDownload Plugin Request finished -- %@", filename );
     
     NSError *error;
     NSString * dlDirectoryAndFilename = [NSString stringWithFormat:@"%@.download", [self getDownloadFileDestination:filename]];
@@ -250,7 +240,7 @@
     
     // Attempt the move
     if ([[NSFileManager defaultManager] moveItemAtPath:dlDirectoryAndFilename toPath:directoryAndFilename error:&error] != YES){
-        NSLog(@"Unable to move file: %@", [error localizedDescription]);
+        DDLogInfo(@"FileListDownload Plugin Unable to move file: %@", [error localizedDescription]);
         // remove temporary download file
         [[NSFileManager defaultManager] removeItemAtPath:dlDirectoryAndFilename error:&error];
     } else {
@@ -268,13 +258,13 @@
 {
     NSError *error = [request error];
     NSString * description = [error description];
-    int code = [error code];
+    long code = [error code];
     NSString *filename = [[[request originalURL] lastPathComponent] lowercaseString];
     if(!filename){
         filename = [[[request url] lastPathComponent] lowercaseString];
     }
     
-    NSLog(@"Download Error - requestFailed - %@ (Code=%d)", [error description], code );
+    DDLogInfo(@"FileListDownload Plugin Download Error - requestFailed - %@ (Code=%ld)", [error description], code );
     
     if(code == ASIFileManagementError){
         // check disk space in an effort to determine cause of cancellation
@@ -297,7 +287,7 @@
         }
         
     }else{
-        NSLog(@"Unknown error: %d %@ %@", [error code], filename, description );
+        DDLogInfo(@"FileListDownload Plugin Unknown error: %ld %@ %@", code, filename, description );
     }
     
     
@@ -312,7 +302,7 @@
 
 - (void)queueFinished:(ASINetworkQueue *)queue
 {
-	NSLog(@"Queue finished - Download Complete");
+	DDLogInfo(@"FileListDownload Plugin Queue finished - Download Complete");
     
     // broadcast completion message
     [[NSNotificationCenter defaultCenter]
@@ -345,9 +335,9 @@
     BOOL isDirectory;
     if (!([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/Audio",documentsDirectory] isDirectory:&isDirectory] && isDirectory))
     {
-        NSLog(@"Audio Directory Doesn't Exist - Create");
+        DDLogInfo(@"FileListDownload Plugin Audio Directory Doesn't Exist - Create");
         if(![[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/Audio",documentsDirectory] withIntermediateDirectories:YES attributes:nil error:&error])
-            NSLog(@"Error: Create folder failed");
+            DDLogInfo(@"FileListDownload Plugin Error: Create folder failed");
     }
     
     NSString *onlyFileName = [[[NSURL URLWithString:file] lastPathComponent] lowercaseString];
@@ -399,10 +389,10 @@
             if(filename != nil) {
                 [filesToKeep addObject:filename];
             } else {
-                NSLog(@"Empty filename - not adding to download queue");
+                DDLogInfo(@"FileListDownload Plugin Empty filename - not adding to download queue");
             }
         } else {
-            NSLog(@"Force download of %@", filename);
+            DDLogInfo(@"FileListDownload Plugin Force download of %@", filename);
         }
         directoryAndFilename = [self getDownloadFileDestination:filename];
         if([[NSFileManager defaultManager] fileExistsAtPath:directoryAndFilename]){
@@ -432,8 +422,7 @@
             }
         }
     }
-    
-    //[filesToKeep release];
+
     filesToKeep=nil;
     return filesAlreadyHere;
 }
@@ -465,13 +454,15 @@
         NSString *destDir = [NSString stringWithFormat:@"%@/filler%d/",documentsDirectory,counter];
         counter++;
         success = [[NSFileManager defaultManager] copyItemAtPath:sourceDir toPath:destDir error:&error];
-        if(success != YES) NSLog(@"Error: %@", error);
+        if(success != YES) {
+            DDLogInfo(@"FileListDownload Plugin Error: %@", error);
+        }
     }
 
 }
 
 - (void) addFileToQueue:(NSString *)filename url:(NSString*)url priority:(NSOperationQueuePriority)priority{
-    NSLog(@"Queueing: %@", filename);
+    DDLogInfo(@"FileListDownload Plugin Queueing: %@", filename);
     NSString * directoryAndFilename = [NSString stringWithFormat:@"%@.download", [self getDownloadFileDestination:filename]];
     DownloadRequest *request = [DownloadRequest requestWithURL:[NSURL URLWithString:url]];
     [request setQueue:[self mNetworkQueue]];
@@ -494,7 +485,7 @@
         NSError *error = nil;
         success = [URL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
         if(!success){
-            NSLog(@"Error excluding %@ from backup %@", [URL lastPathComponent], error);
+            DDLogInfo(@"FileListDownload Plugin Error excluding %@ from backup %@", [URL lastPathComponent], error);
         }
     }
     return success;
