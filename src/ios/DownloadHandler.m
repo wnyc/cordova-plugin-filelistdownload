@@ -1,10 +1,7 @@
 //
 //  DownloadFile.m
-//  NYPRNativeFeatures
 //
-//  Created by Brad Kammin on 11/28/12.
-//
-//
+
 
 #import "DownloadHandler.h"
 
@@ -13,6 +10,11 @@
 #import "DDLog.h"
 
 extern int ddLogLevel;
+
+static NSString *const kDownloadHandlerNoCloudDirectory = @"NoCloud";
+static NSString *const kDownloadHandlerFileDirectory = @"Audio";
+static NSString *const kDownloadHandlerDirectoryRelativeToLibrary = @"NoCloud/Audio";
+
 
 @implementation DownloadHandler
 
@@ -243,9 +245,6 @@ extern int ddLogLevel;
         DDLogInfo(@"FileListDownload Plugin Unable to move file: %@", [error localizedDescription]);
         // remove temporary download file
         [[NSFileManager defaultManager] removeItemAtPath:dlDirectoryAndFilename error:&error];
-    } else {
-        // don't back up to Cloud
-        [self _addSkipBackupAttributeToItemAtURL:[NSURL fileURLWithPath:directoryAndFilename]];
     }
     
     // release the queue
@@ -319,29 +318,31 @@ extern int ddLogLevel;
 // Utility functions
 
 - (NSString*)getDownloadDirectory{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *path = [NSString stringWithFormat:@"%@/Audio/",documentsDirectory];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+    NSString *libraryDirectory = [paths objectAtIndex:0];
+    NSString *path = [NSString stringWithFormat:@"%@/%@",libraryDirectory, kDownloadHandlerDirectoryRelativeToLibrary];
     return path;
 }
 
 
 - (NSString*)getDownloadFileDestination:(NSString *)file{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+    NSString *libraryDirectory = [paths objectAtIndex:0];
     NSError *error = nil;
     
     // create directory if it doesn't exist
     BOOL isDirectory;
-    if (!([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/Audio",documentsDirectory] isDirectory:&isDirectory] && isDirectory))
+    if (!([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@/%@",libraryDirectory, kDownloadHandlerDirectoryRelativeToLibrary] isDirectory:&isDirectory] && isDirectory))
     {
         DDLogInfo(@"FileListDownload Plugin Audio Directory Doesn't Exist - Create");
-        if(![[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/Audio",documentsDirectory] withIntermediateDirectories:YES attributes:nil error:&error])
+        if(![[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/%@",libraryDirectory, kDownloadHandlerDirectoryRelativeToLibrary] withIntermediateDirectories:YES attributes:nil error:&error]) {
+            
             DDLogInfo(@"FileListDownload Plugin Error: Create folder failed");
+        }
     }
     
     NSString *onlyFileName = [[[NSURL URLWithString:file] lastPathComponent] lowercaseString];
-    NSString *fileName = [NSString stringWithFormat:@"%@/Audio/%@",documentsDirectory,onlyFileName];
+    NSString *fileName = [NSString stringWithFormat:@"%@/%@/%@",libraryDirectory, kDownloadHandlerDirectoryRelativeToLibrary, onlyFileName];
     
     return fileName;
 }
@@ -444,14 +445,14 @@ extern int ddLogLevel;
 
 - (void)fillDiskSpace{
     NSString * sourceDir = [self getDownloadDirectory];
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+    NSString *libraryDirectory = [paths objectAtIndex:0];
     int counter=1;
     BOOL success=TRUE;
     NSError *error = nil;
     
     while([self minimumSpaceIsAvailable:MINIMUM_SPACE] && success==TRUE){
-        NSString *destDir = [NSString stringWithFormat:@"%@/filler%d/",documentsDirectory,counter];
+        NSString *destDir = [NSString stringWithFormat:@"%@/filler%d/",libraryDirectory,counter];
         counter++;
         success = [[NSFileManager defaultManager] copyItemAtPath:sourceDir toPath:destDir error:&error];
         if(success != YES) {
@@ -476,19 +477,6 @@ extern int ddLogLevel;
     // placement of this line matters - putting it before addOperation will cancel it out -- addOperations assigns the showAccurateProgress flag from the queue
     // to the request
     [request setShowAccurateProgress:YES];
-}
-
-// prevent backup to the Cloud
-- (BOOL)_addSkipBackupAttributeToItemAtURL:(NSURL *)URL{
-    BOOL success=false;
-    if ([[NSFileManager defaultManager] fileExistsAtPath: [URL path]])  {
-        NSError *error = nil;
-        success = [URL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &error];
-        if(!success){
-            DDLogInfo(@"FileListDownload Plugin Error excluding %@ from backup %@", [URL lastPathComponent], error);
-        }
-    }
-    return success;
 }
 
 @synthesize mNetworkQueue;
