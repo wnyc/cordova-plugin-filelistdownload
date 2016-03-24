@@ -117,8 +117,10 @@ public class DownloadMediaFileTask implements Runnable {
 				// download the audio
 			    int count;
 		        URL url = new URL(sourceUrl);
-		        connection = url.openConnection();
-		        connection.connect();
+		        connection = url.openConnection();		        
+		        connection.setConnectTimeout(1000 * 15);
+		        connection.setReadTimeout(1000 * 15);
+
 		        
 		        // this will be useful so that you can show a typical 0-100% progress bar
 		        int lengthOfFile = connection.getContentLength();
@@ -130,7 +132,7 @@ public class DownloadMediaFileTask implements Runnable {
 		        Log.d(LOG_TAG, "Connection Made. Length of File: " + lengthOfFile);
 		        
 		        // download the file
-		        input = new BufferedInputStream(url.openStream());
+		        input = new BufferedInputStream(connection.getInputStream());
 		        		        
 				Log.d(LOG_TAG, "Writing File: " + (path + destinationFile + ".download"));
 				
@@ -162,7 +164,7 @@ public class DownloadMediaFileTask implements Runnable {
 		            output.write(data, 0, count); // throws IOException
 		        }
 
-		        //Log.d(LOG_TAG, "Flushing and Closing Files"); 
+		        //Log.d(LOG_TAG, "Flushing and Closing Files");
 		        output.flush(); // throws IOException
 		        output.close(); // throws IOException
 		        input.close();
