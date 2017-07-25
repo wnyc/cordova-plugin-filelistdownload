@@ -22,6 +22,7 @@ typedef enum _NYPRNativeDownloadErrorType {
     NSArray * mCurrentJSON;
 }
 
+@property (nonatomic) NSString *userAgent;
 @property (retain) ASINetworkQueue *mNetworkQueue;
 
 -(void) downloadPlaylist:(NSArray*)filelist;

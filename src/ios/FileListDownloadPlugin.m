@@ -11,6 +11,12 @@
 
 extern int ddLogLevel;
 
+@interface FileListDownloadPlugin ()
+
+@property (nonatomic) NSString *userAgent;
+
+@end
+
 @implementation FileListDownloadPlugin
 
 #pragma mark Initialization
@@ -19,7 +25,10 @@ extern int ddLogLevel;
     if(self->mDownloadHandler==nil){
         DDLogInfo(@"FileListDownload Plugin creating handler.");
         
-        self->mDownloadHandler=[DownloadHandler alloc];
+        self->mDownloadHandler=[[DownloadHandler alloc] init];
+        if (self.userAgent) {
+            self->mDownloadHandler.userAgent = self.userAgent;
+        }
     
         [[NSNotificationCenter defaultCenter]   addObserver:self selector:@selector(_onDownloadProgress:) name:@"DownloadProgressNotification" object:nil];
         [[NSNotificationCenter defaultCenter]   addObserver:self selector:@selector(_onDownloadComplete:) name:@"DownloadCompleteNotification" object:nil];
@@ -146,6 +155,23 @@ extern int ddLogLevel;
         [self _sendPluginResult:pluginResult callbackId:_callbackId];
 
     }
+}
+
+
+- (void)setuseragent:(CDVInvokedUrlCommand*)command {
+    DDLogInfo (@"FileListDownload Plugin configuring user agent");
+
+    CDVPluginResult* pluginResult = nil;
+
+    if (command.arguments.count>0 && [command.arguments objectAtIndex:0] != (id)[NSNull null]) {
+        self.userAgent = [command.arguments objectAtIndex:0];
+        if (self->mDownloadHandler) {
+            self->mDownloadHandler.userAgent = self.userAgent;
+        }
+    }
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self _sendPluginResult:pluginResult callbackId:_callbackId];
 }
 
 @end

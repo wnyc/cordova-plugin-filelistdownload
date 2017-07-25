@@ -18,6 +18,7 @@
     NSString * _callbackId;
 }
 
+- (void)setuseragent:(CDVInvokedUrlCommand*)command;
 - (void)downloadfilelist:(CDVInvokedUrlCommand*)command;
 - (void)scanfilelist:(CDVInvokedUrlCommand*)command;
 
