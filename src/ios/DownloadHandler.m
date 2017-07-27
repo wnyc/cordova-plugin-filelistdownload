@@ -1,8 +1,6 @@
 //
 //  DownloadFile.m
 //
-
-
 #import "DownloadHandler.h"
 
 #import "ASINetworkQueue.h"
@@ -15,12 +13,10 @@ static NSString *const kDownloadHandlerNoCloudDirectory = @"NoCloud";
 static NSString *const kDownloadHandlerFileDirectory = @"Audio";
 static NSString *const kDownloadHandlerDirectoryRelativeToLibrary = @"NoCloud/Audio";
 
-
 @implementation DownloadHandler
 
 #define MINIMUM_MB 5
 #define MINIMUM_SPACE (MINIMUM_MB * 1024 * 1024)
-
 
 - (void)dealloc {
     mCurrentJSON=nil;
@@ -466,6 +462,7 @@ static NSString *const kDownloadHandlerDirectoryRelativeToLibrary = @"NoCloud/Au
     DDLogInfo(@"FileListDownload Plugin Queueing: %@", filename);
     NSString * directoryAndFilename = [NSString stringWithFormat:@"%@.download", [self getDownloadFileDestination:filename]];
     DownloadRequest *request = [DownloadRequest requestWithURL:[NSURL URLWithString:url]];
+    [request setUserAgentString:self.userAgent];
     [request setQueue:[self mNetworkQueue]];
     [request setQueuePriority:priority];
     [request setDownloadProgressDelegate:self];
