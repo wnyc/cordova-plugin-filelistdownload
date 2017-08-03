@@ -18,14 +18,14 @@ public class DownloadHandler {
 		mCurrentDownloadTask=null;
 	}
 	
-	public void scanPlaylist(Context context, OnDownloadUpdateListener listener, JSONArray json) throws JSONException{
+	public void scanPlaylist(Context context, OnDownloadUpdateListener listener, JSONArray json, String userAgent) throws JSONException{
 		if(mCurrentDownloadTask==null){
-			mCurrentDownloadTask = new DownloadMediaListTask(context,listener, json);
+			mCurrentDownloadTask = new DownloadMediaListTask(context,listener, json, userAgent);
 		}
 		mCurrentDownloadTask.scanForDownloadedFiles(context, json);
 	}
 	
-	public void downloadPlaylist(Context context, OnDownloadUpdateListener listener, JSONArray json) throws JSONException{
+	public void downloadPlaylist(Context context, OnDownloadUpdateListener listener, JSONArray json, String userAgent) throws JSONException{
 		
 		Boolean restart=true;
 		
@@ -44,7 +44,7 @@ public class DownloadHandler {
 		
 		if(restart){		
 			mCurrentJSON = json;
-			mCurrentDownloadTask = new DownloadMediaListTask(context,listener, json);
+			mCurrentDownloadTask = new DownloadMediaListTask(context,listener, json, userAgent);
 			mCurrentThread = new Thread(mCurrentDownloadTask);
 			mCurrentThread.start();
 		}

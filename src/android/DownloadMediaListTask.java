@@ -17,15 +17,17 @@ public class DownloadMediaListTask implements Runnable {
 	protected JSONArray mDownloadArray;
 	protected Context mContext;
 	protected DownloadMediaFileTask mCurrentDownloadMediaFileTask;
+    protected String mUserAgent;
 	
 	private volatile boolean mCancel = false;
 	
-	public DownloadMediaListTask(Context c, OnDownloadUpdateListener listener, JSONArray downloadArray) {
+	public DownloadMediaListTask(Context c, OnDownloadUpdateListener listener, JSONArray downloadArray, String userAgent) {
 		try {
 			mContext=c;
 			mDownloadListener=listener;
 			mDownloadArray=downloadArray;
 			mCancel=false;
+            mUserAgent = mUserAgent;
 			// at some point this could become multiple download tasks...
 			mCurrentDownloadMediaFileTask=new DownloadMediaFileTask();
 		} catch (Exception e) {
@@ -35,7 +37,7 @@ public class DownloadMediaListTask implements Runnable {
 
 	@Override
 	public void run() {
-		startDownload(mContext, mDownloadListener, mDownloadArray);
+		startDownload(mContext, mDownloadListener, mDownloadArray, mUserAgent);
 	}
 		
 	public void cancelDownload(){
@@ -45,7 +47,7 @@ public class DownloadMediaListTask implements Runnable {
 		mCurrentDownloadMediaFileTask.cancelFileDownload();
 	}
 	
-	public void startDownload(Context context, OnDownloadUpdateListener listener, JSONArray downloadArray){
+	public void startDownload(Context context, OnDownloadUpdateListener listener, JSONArray downloadArray, String userAgent){
 		Log.d(LOG_TAG, "Performing File Download. Count=" + downloadArray.length() );
 				
 		try { 
@@ -68,7 +70,7 @@ public class DownloadMediaListTask implements Runnable {
 				if(!doNotDownloadTheseFiles.contains(filename)){
 					// download the audio 
 					//Log.d(LOG_TAG, "Downloading Audio File #" + (i+1) + ". Url=" + url);
-					mCurrentDownloadMediaFileTask.startDownload(context, listener, url,filename);
+					mCurrentDownloadMediaFileTask.startDownload(context, listener, url,filename,userAgent);
 					/*
 					// download the image. not sure if this is necessary
 					url=downloadArray.getJSONObject(i).getString("image");
