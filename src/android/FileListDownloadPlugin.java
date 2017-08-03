@@ -16,7 +16,8 @@ public class FileListDownloadPlugin extends CordovaPlugin implements OnDownloadU
 	protected static final String LOG_TAG = "FileListDownloadPlugin";
 
 	protected DownloadHandler mDownloadHandler=null;
-  protected CallbackContext connectionCallbackContext;
+    protected CallbackContext connectionCallbackContext;
+    protected String mUserAgent = null;
 	
 	public FileListDownloadPlugin() {
 		Log.d(LOG_TAG, "FileListDownload Plugin constructed");
@@ -49,32 +50,39 @@ public class FileListDownloadPlugin extends CordovaPlugin implements OnDownloadU
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		boolean ret=true;
-		try {
-			if (action.equals("downloadfilelist")) {
-				Log.d(LOG_TAG, "Download List of Files");
-        this.connectionCallbackContext = callbackContext;	
-				mDownloadHandler.downloadPlaylist(cordova.getActivity().getApplicationContext(),this,args);
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
-			}else if (action.equals("scanfilelist")) {
-				Log.d(LOG_TAG, "Scan List of Files");
-        this.connectionCallbackContext = callbackContext;
-				mDownloadHandler.scanPlaylist(cordova.getActivity().getApplicationContext(),this,args);
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
-			}else{
-				callbackContext.error(LOG_TAG + " error: invalid action (" + action + ")");
-				ret=false;
-			}
-		} catch (JSONException e) {
-			callbackContext.error(LOG_TAG + " error: invalid json");
-			ret = false;
-		} catch (Exception e) {
-			callbackContext.error(LOG_TAG + " error: " + e.getMessage());
-			ret = false;
-		}
+        try {
+            if (action.equals("downloadfilelist")) {
+                Log.d(LOG_TAG, "Download List of Files");
+                this.connectionCallbackContext = callbackContext;
+                mDownloadHandler.downloadPlaylist(cordova.getActivity().getApplicationContext(),this,args, mUserAgent);
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginResult);
+            }else if (action.equals("scanfilelist")) {
+                Log.d(LOG_TAG, "Scan List of Files");
+                this.connectionCallbackContext = callbackContext;
+                mDownloadHandler.scanPlaylist(cordova.getActivity().getApplicationContext(),this,args, mUserAgent);
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginResult);
+            }else if (action.equals("setuseragent")) {
+                Log.d(LOG_TAG, "Set User Agent");
+                this.connectionCallbackContext = callbackContext;
+                mUserAgent = args.getString(0);
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                callbackContext.sendPluginResult(pluginResult);
+            }else{
+                callbackContext.error(LOG_TAG + " error: invalid action (" + action + ")");
+                ret=false;
+            }
+        } catch (JSONException e) {
+            callbackContext.error(LOG_TAG + " error: invalid json");
+            ret = false;
+        } catch (Exception e) {
+            callbackContext.error(LOG_TAG + " error: " + e.getMessage());
+            ret = false;
+        }
 		return ret;
 	}
 	

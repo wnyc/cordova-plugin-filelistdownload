@@ -28,6 +28,7 @@ public class DownloadMediaFileTask implements Runnable {
 	protected String mDestinationFile;
 	protected String mDownloadUrl;
 	protected OnDownloadUpdateListener mDownloadListener;
+    protected String mUserAgent;
 	
 	private volatile boolean mCancel = false;
 	
@@ -44,11 +45,12 @@ public class DownloadMediaFileTask implements Runnable {
 	public DownloadMediaFileTask(){
 	}
 	
-	public DownloadMediaFileTask(Context c, OnDownloadUpdateListener listener, String url) {
+	public DownloadMediaFileTask(Context c, OnDownloadUpdateListener listener, String url, String userAgent) {
 		try {
 			this.mContext = c;
 			this.mDownloadUrl=url;
 			mDownloadListener=listener;
+            mUserAgent=userAgent;
 			this.mDestinationFile = new File(mDownloadUrl).getName();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -56,7 +58,7 @@ public class DownloadMediaFileTask implements Runnable {
 	}
 
 	public void run() {
-		startDownload(mContext, mDownloadListener, mDownloadUrl, mDestinationFile);
+		startDownload(mContext, mDownloadListener, mDownloadUrl, mDestinationFile, mUserAgent);
 	}
 	
 	public void cancelFileDownload(){
@@ -64,7 +66,7 @@ public class DownloadMediaFileTask implements Runnable {
 		mCancel=true;
 	}
 	
-	public void startDownload(Context context, OnDownloadUpdateListener listener, String sourceUrl, String destinationFile){
+	public void startDownload(Context context, OnDownloadUpdateListener listener, String sourceUrl, String destinationFile, String userAgent){
 		String errorMessage="";
 		int downloadStatus = 0;
 		String progressFilename=null;
@@ -120,7 +122,9 @@ public class DownloadMediaFileTask implements Runnable {
 		        connection = url.openConnection();		        
 		        connection.setConnectTimeout(1000 * 15);
 		        connection.setReadTimeout(1000 * 15);
-
+                if (userAgent != null) {
+                    connection.setRequestProperty("User-Agent", userAgent);
+                }
 		        
 		        // this will be useful so that you can show a typical 0-100% progress bar
 		        int lengthOfFile = connection.getContentLength();
