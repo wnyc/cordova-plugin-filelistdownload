@@ -27,7 +27,7 @@ public class DownloadMediaListTask implements Runnable {
 			mDownloadListener=listener;
 			mDownloadArray=downloadArray;
 			mCancel=false;
-            mUserAgent = mUserAgent;
+                        mUserAgent = userAgent;
 			// at some point this could become multiple download tasks...
 			mCurrentDownloadMediaFileTask=new DownloadMediaFileTask();
 		} catch (Exception e) {
